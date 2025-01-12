@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy New Year 2025</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #000; /* Fixed black background */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      #message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        font-weight: bold;
+        color: transparent;
+        background-image: linear-gradient(
+          90deg,
+          #ff5733,
+          #f4ff33,
+          #33ff57,
+          #33c1ff,
+          #ff33e3
+        );
+        background-clip: text;
+        -webkit-background-clip: text;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+          0 0 50px rgba(255, 255, 255, 0.6);
+        opacity: 0;
+        animation: fadeInText 3s forwards, glowText 2s infinite alternate;
+        z-index: 10;
+        text-align: center;
+      }
+
+      @keyframes fadeInText {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -100%);
+        }
+        100% {
+          opacity: 1;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      @keyframes glowText {
+        0% {
+          text-shadow: 0 0 20px #fff, 0 0 30px #ff5733, 0 0 40px #33ff57;
+        }
+        100% {
+          text-shadow: 0 0 50px #fff, 0 0 60px #ff5733, 0 0 70px #33ff57;
+        }
+      }
+
+      canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="message">Happy New Year 2025</div>
+    <canvas id="fireworksCanvas"></canvas>
+
+    <script>
+      const canvas = document.getElementById("fireworksCanvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+
+      class Particle {
+        constructor(x, y, color, speedMultiplier = 1, type = "default") {
+          this.x = x;
+          this.y = y;
+          this.color = color;
+          this.size = Math.random() * 4 + 2;
+          this.speedX = (Math.random() * 6 - 3) * speedMultiplier;
+          this.speedY = (Math.random() * 6 - 3) * speedMultiplier;
+          this.life = Math.random() * 40 + 60;
+          this.type = type;
+        }
+
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          this.size *= 0.96;
+          this.life--;
+        }
+
+        draw() {
+          ctx.beginPath();
+          if (this.type === "meteor") {
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.x - this.speedX * 5, this.y - this.speedY * 5);
+            ctx.lineWidth = this.size / 2;
+            ctx.strokeStyle = this.color;
+            ctx.stroke();
+          } else {
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = this.color;
+            ctx.fill();
+          }
+        }
+      }
+
+      const particles = [];
+
+      function createFireworks(x, y, type = "default") {
+        const colors = ["#7C2A2A", "#D05A5A", "#5733ff", "#E74C3C", "#ff33e3"];
+        const speedMultiplier = type === "explosion" ? 1.5 : 1;
+
+        for (let i = 0; i < 120; i++) {
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          particles.push(new Particle(x, y, color, speedMultiplier, type));
+        }
+      }
+
+      function createMeteor() {
+        const x = Math.random() * canvas.width;
+        const y = (Math.random() * canvas.height) / 2;
+        const color = "rgba(255, 255, 255, 0.7)";
+        particles.push(new Particle(x, y, color, 1.5, "meteor"));
+      }
+
+      function triggerRandomFireworks() {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height * 0.8; // Avoid too close to bottom
+        createFireworks(x, y, "explosion");
+      }
+
+      function animate() {
+        // Clear the canvas with a solid black background
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((particle, index) => {
+          if (particle.life <= 0 || particle.size <= 0.1) {
+            particles.splice(index, 1);
+          } else {
+            particle.update();
+            particle.draw();
+          }
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      // Meteor effect
+      setInterval(createMeteor, 800);
+
+      // Random fireworks
+      setInterval(() => {
+        if (Math.random() > 0.5) {
+          // Random chance for fireworks
+          triggerRandomFireworks();
+        }
+      }, 1500); // Adjust timing for more or fewer fireworks
+
+      animate();
+    </script>
+  </body>
+</html>
